@@ -1,5 +1,6 @@
 ﻿using SC.DevChallenge.Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 using System.Collections;
 using System;
 
@@ -22,13 +23,9 @@ namespace SC.DevChallenge.Api.Controllers
         {
             FinancialStorage storage = new FinancialStorage();
             StringBuilder result = new StringBuilder();
-
-
-
-
+            result.Append(Average("","","","") + "\n");
+            result.Append(Average("123", "123", "12", "1231") + "\n");
             return $"Loaded assets = {storage.AssetsList.Count}";
-
-
         }
     }
 }
