@@ -10,9 +10,16 @@ namespace SC.DevChallenge.Api
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                    webBuilder.UseStartup<Startup>());
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+
+            var builder = Host.CreateDefaultBuilder(args);
+            builder.ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
+            return builder;
+        }
+                
     }
 }

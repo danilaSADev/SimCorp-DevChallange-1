@@ -10,22 +10,19 @@ namespace SC.DevChallenge.Api.Controllers
     [Route("api/[controller]")]
     public class PricesController : ControllerBase
     {
+        private IFinancialStorage _financialStorage;
+        public PricesController(IFinancialStorage storage)
+        {
+            _financialStorage = storage;
+        }
+
         [HttpGet("average")]
         public string Average(string portfolio, string owner, string instrument, string dateTime)
         {
-            FinancialStorage storage = new FinancialStorage();
-            var result = storage.CalculateAvarage(portfolio, owner, instrument, dateTime);
+            var result = _financialStorage.CalculateAvarage(portfolio, owner, instrument, dateTime);
             return result;
         }
 
-        [HttpGet("test")]
-        public string Test() 
-        {
-            FinancialStorage storage = new FinancialStorage();
-            StringBuilder result = new StringBuilder();
-            result.Append(Average("","","","") + "\n");
-            result.Append(Average("123", "123", "12", "1231") + "\n");
-            return $"Loaded assets = {storage.AssetsList.Count}";
-        }
+        // TODO wire up with unit testing
     }
 }

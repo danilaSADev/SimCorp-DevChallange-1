@@ -7,8 +7,7 @@ using System.Linq;
 
 namespace SC.DevChallenge.Api.Models
 {
-    
-    public class FinancialStorage
+    public class FinancialStorage : IFinancialStorage
     {
         private readonly string CSV_PATH = Path.Combine(Environment.CurrentDirectory, @"Input\", "data.csv");
         private int _timeslotInterval = 10000;
@@ -18,7 +17,8 @@ namespace SC.DevChallenge.Api.Models
         {
             LoadFinancialInformation();
         }
-
+        // TODO configure date-to-slot and slot-to-date so they use 2018.01.01 as a start date
+        // TODO configure slot-to-date so they would return exactly the start point of the specified timeslot
         private int DateToTimeslot(DateTime input) 
         {
             TimeSpan diff = input - DateTime.UnixEpoch;
