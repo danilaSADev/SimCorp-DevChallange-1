@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Net.Http;
 using System.Text.Json.Serialization;
 using System.Linq;
 
@@ -12,6 +13,8 @@ namespace SC.DevChallenge.Api.Models
         private readonly string CSV_PATH = Path.Combine(Environment.CurrentDirectory, @"Input\", "data.csv");
         private int _timeslotInterval = 10000;
 
+        private DateTime _timeslotStart = new DateTime(2018, 1, 1);
+
         public List<FinancialAsset> AssetsList { get; } = new List<FinancialAsset>();
         public FinancialStorage() 
         {
@@ -21,13 +24,14 @@ namespace SC.DevChallenge.Api.Models
         // TODO configure slot-to-date so they would return exactly the start point of the specified timeslot
         private int DateToTimeslot(DateTime input) 
         {
-            TimeSpan diff = input - DateTime.UnixEpoch;
-            return (int)diff.TotalSeconds;
+            TimeSpan diff = input - _timeslotStart;
+            int inTimeslots = (int)diff.TotalSeconds / _timeslotInterval;
+            return inTimeslots * _timeslotInterval;
         }
 
         private DateTime TimeslotToDate(int timeslot)
         {
-            DateTime dateTime = DateTime.UnixEpoch.AddSeconds(timeslot);
+            DateTime dateTime = _timeslotStart.AddSeconds(timeslot);
             return dateTime;
         }
 
@@ -48,14 +52,23 @@ namespace SC.DevChallenge.Api.Models
         public string CalculateAvarage(string portfolio, string owner, string instrument, string dateTime)
         {
             DateTime realDateTime = DateTime.Parse(dateTime);
-            int timeslotValue = DateToTimeslot(realDateTime) + _timeslotInterval;
+            int startTimeSlot = DateToTimeslot(realDateTime);
+            int endTimeSlot = startTimeSlot + _timeslotInterval;
             var query = from asset in AssetsList
-                        where asset.Portfolio == portfolio && asset.Instrument == instrument
-                        && asset.Owner == owner && DateToTimeslot(asset.Datetime) <= timeslotValue
+                        where asset.Portfolio == portfolio && 
+                        asset.Instrument == instrument && 
+                        asset.Owner == owner && 
+                        DateToTimeslot(asset.Datetime) <= endTimeSlot && 
+                        DateToTimeslot(asset.Datetime) >= startTimeSlot
                         select asset;
 
+            if (query.Count() <= 0)
+            {
+                return "404";
+            }
+
             double avarage = query.Average(asset => asset.Price);
-            DateTime date = TimeslotToDate(timeslotValue);
+            DateTime date = TimeslotToDate(endTimeSlot);
 
             AvarageGetResult result = new AvarageGetResult(date, avarage);
             string jsonString = JsonSerializer.Serialize(result);

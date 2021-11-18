@@ -1,5 +1,6 @@
 ﻿using SC.DevChallenge.Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using System.Text;
 using System.Collections;
 using System;
@@ -17,10 +18,14 @@ namespace SC.DevChallenge.Api.Controllers
         }
 
         [HttpGet("average")]
-        public string Average(string portfolio, string owner, string instrument, string dateTime)
+        public ActionResult Average(string portfolio, string owner, string instrument, string dateTime)
         {
             var result = _financialStorage.CalculateAvarage(portfolio, owner, instrument, dateTime);
-            return result;
+            if (result == "404")
+            {
+                return NotFound();
+            }
+            return Ok(result);
         }
 
         // TODO wire up with unit testing
