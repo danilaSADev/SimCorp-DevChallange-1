@@ -21,11 +21,7 @@ namespace SC.DevChallenge.Api.Controllers
         public ActionResult Average(string portfolio, string owner, string instrument, string dateTime)
         {
             var result = _financialStorage.CalculateAvarage(portfolio, owner, instrument, dateTime);
-            if (result == "404")
-            {
-                return NotFound();
-            }
-            return Ok(result);
+            return result;
         }
 
         // TODO wire up with unit testing

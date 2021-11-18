@@ -1,9 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using System.Net.Http;
-using System.Text.Json.Serialization;
 using System.Linq;
 
 namespace SC.DevChallenge.Api.Models
@@ -20,8 +19,7 @@ namespace SC.DevChallenge.Api.Models
         {
             LoadFinancialInformation();
         }
-        // TODO configure date-to-slot and slot-to-date so they use 2018.01.01 as a start date
-        // TODO configure slot-to-date so they would return exactly the start point of the specified timeslot
+
         private int DateToTimeslot(DateTime input) 
         {
             TimeSpan diff = input - _timeslotStart;
@@ -49,9 +47,14 @@ namespace SC.DevChallenge.Api.Models
             }
         }
 
-        public string CalculateAvarage(string portfolio, string owner, string instrument, string dateTime)
+        public IActionResult CalculateAvarage(string portfolio, string owner, string instrument, string dateTime)
         {
-            DateTime realDateTime = DateTime.Parse(dateTime);
+            DateTime realDateTime;
+            if (!DateTime.TryParse(dateTime, out realDateTime))
+            {
+                return new BadRequestResult();
+            }
+
             int startTimeSlot = DateToTimeslot(realDateTime);
             int endTimeSlot = startTimeSlot + _timeslotInterval;
             var query = from asset in AssetsList
@@ -64,7 +67,7 @@ namespace SC.DevChallenge.Api.Models
 
             if (query.Count() <= 0)
             {
-                return "404";
+                return new NotFoundResult();
             }
 
             double avarage = query.Average(asset => asset.Price);
@@ -73,7 +76,7 @@ namespace SC.DevChallenge.Api.Models
             AvarageGetResult result = new AvarageGetResult(date, avarage);
             string jsonString = JsonSerializer.Serialize(result);
 
-            return jsonString;
+            return new OkObjectResult(jsonString);
         }
 
     }
