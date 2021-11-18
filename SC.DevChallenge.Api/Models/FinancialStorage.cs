@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using System.Web;
 using System.Linq;
 
 namespace SC.DevChallenge.Api.Models
@@ -50,6 +51,9 @@ namespace SC.DevChallenge.Api.Models
         public IActionResult CalculateAvarage(string portfolio, string owner, string instrument, string dateTime)
         {
             DateTime realDateTime;
+
+            dateTime = HttpUtility.UrlDecode(dateTime);
+
             if (!DateTime.TryParse(dateTime, out realDateTime))
             {
                 return new BadRequestResult();
