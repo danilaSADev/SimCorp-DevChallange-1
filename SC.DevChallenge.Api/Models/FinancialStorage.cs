@@ -1,10 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
+using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Web;
-using System.Linq;
 
 namespace SC.DevChallenge.Api.Models
 {
@@ -48,7 +48,7 @@ namespace SC.DevChallenge.Api.Models
             }
         }
 
-        public IActionResult CalculateAvarage(string portfolio, string owner, string instrument, string dateTime)
+        public ActionResult CalculateAvarage(string portfolio, string owner, string instrument, string dateTime)
         {
             DateTime realDateTime;
 
@@ -65,7 +65,7 @@ namespace SC.DevChallenge.Api.Models
                         where asset.Portfolio == portfolio && 
                         asset.Instrument == instrument && 
                         asset.Owner == owner && 
-                        DateToTimeslot(asset.Datetime) <= endTimeSlot && 
+                        DateToTimeslot(asset.Datetime) < endTimeSlot && 
                         DateToTimeslot(asset.Datetime) >= startTimeSlot
                         select asset;
 
@@ -75,7 +75,7 @@ namespace SC.DevChallenge.Api.Models
             }
 
             double avarage = query.Average(asset => asset.Price);
-            DateTime date = TimeslotToDate(endTimeSlot);
+            DateTime date = TimeslotToDate(startTimeSlot);
 
             AvarageGetResult result = new AvarageGetResult(date, avarage);
             string jsonString = JsonSerializer.Serialize(result);
@@ -83,5 +83,52 @@ namespace SC.DevChallenge.Api.Models
             return new OkObjectResult(jsonString);
         }
 
+        public ActionResult CalculateAvarageBenchmarked(string portifolio, string dateTime)
+        {
+            DateTime realDateTime;
+
+            dateTime = HttpUtility.UrlDecode(dateTime);
+
+            if (!DateTime.TryParse(dateTime, out realDateTime))
+            {
+                return new BadRequestResult();
+            }
+
+            int startTimeSlot = DateToTimeslot(realDateTime);
+            int endTimeSlot = startTimeSlot + _timeslotInterval;
+
+            var query = from asset in AssetsList
+                        where asset.Portfolio == portifolio &&
+                        DateToTimeslot(asset.Datetime) < endTimeSlot &&
+                        DateToTimeslot(asset.Datetime) >= startTimeSlot
+                        select asset;
+
+            QuantileCalculations quantiles = new QuantileCalculations(query);
+
+            var benchmarkedPrices = quantiles.GetBenchmarkedAssets();
+
+            if (query.Count() <= 0)
+            {
+                return new NotFoundResult();
+            }
+
+            double avarage = query.Average(asset => asset.Price);
+            DateTime date = TimeslotToDate(startTimeSlot);
+
+            AvarageGetResult result = new AvarageGetResult(date, avarage);
+            string jsonString = JsonSerializer.Serialize(result);
+
+            return new OkObjectResult(jsonString);
+        }
+
+        public ActionResult CalculateAvarageAggregated(string portfolio, string startDate, string endDate, string intervals)
+        {
+            // TODO parse start and end dates
+
+            // TODO 
+
+            // TODO replace with real return result
+            throw new NotImplementedException();
+        }
     }
 }

@@ -19,7 +19,7 @@ namespace SC.DevChallenge.Api.Models
             Price = price;
         }
 
-        public FinancialAsset() : this("", "", "", DateTime.UnixEpoch, 0)
+        public FinancialAsset() : this("", "", "", new DateTime(2018, 1, 1), 0)
         {   }
     }
 }
