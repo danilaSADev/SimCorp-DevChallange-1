@@ -35,7 +35,7 @@ namespace SC.DevChallenge.Api.Models
             double upperBorder = avaragePrice * quartile3 + 1.5 * interQuartile;
 
             var result = from asset in sortedAssets
-                         where asset.Price > lowerBorder && asset.Price < upperBorder
+                         where asset.Price >= lowerBorder && asset.Price <= upperBorder
                          select asset;
 
             return result; 

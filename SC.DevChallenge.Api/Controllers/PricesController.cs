@@ -18,20 +18,21 @@ namespace SC.DevChallenge.Api.Controllers
         public ActionResult Average(string portfolio, string owner, string instrument, string date)
         {
             var result = _financialStorage.CalculateAvarage(portfolio, owner, instrument, date);
-            return result as ActionResult;
+            return result;
         }
 
         [HttpGet("benchmark")]
         public ActionResult Benchmark(string portfolio, string date)
         {
             var result = _financialStorage.CalculateAvarageBenchmarked(portfolio, date);
-            return result as ActionResult;
+            return result;
         }
 
         [HttpGet("aggregate")]
         public ActionResult Aggregate(string portfolio, string startdate, string enddate, string intervals)
         {
-            return Ok();
+            var result = _financialStorage.CalculateAvarageAggregated(portfolio, startdate, enddate, intervals);
+            return result;
         }
 
         // TODO wire up with unit testing
