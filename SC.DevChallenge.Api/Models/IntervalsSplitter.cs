@@ -18,6 +18,10 @@ namespace SC.DevChallenge.Api.Models
             _intervals = intervals;
         }
 
+        /// <summary>
+        /// Calculate groups for intervals with given parameters in the constructor.
+        /// </summary>
+        /// <returns>Queue <see cref="IEnumerable{int}"/> of intervals for each groups.</returns>
         public IEnumerable<int> CalculateIntervals()
         {
 

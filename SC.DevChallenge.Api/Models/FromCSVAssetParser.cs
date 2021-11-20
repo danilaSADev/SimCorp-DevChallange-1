@@ -9,7 +9,10 @@ namespace SC.DevChallenge.Api.Models
         {
             _dataToParse = data;
         }
-
+        /// <summary>
+        /// Parses a data that was sent on input to <see cref="FinancialAsset"/>.
+        /// </summary>
+        /// <returns> <see cref="FinancialAsset"/> based on information that was passed on. </returns>
         public FinancialAsset Parse()
         {
             string[] data = _dataToParse.Split(",");

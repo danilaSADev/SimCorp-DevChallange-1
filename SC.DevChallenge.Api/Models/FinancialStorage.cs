@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Web;
+using System.Data.SqlTypes;
 
 namespace SC.DevChallenge.Api.Models
 {
@@ -12,23 +13,26 @@ namespace SC.DevChallenge.Api.Models
     {
         private readonly string CSV_PATH = Path.Combine(Environment.CurrentDirectory, @"Input\", "data.csv");
         public static readonly int _timeslotInterval = 10000;
+        private static readonly DateTime _timeslotStart = new DateTime(2018, 1, 1);
 
-        private DateTime _timeslotStart = new DateTime(2018, 1, 1);
+        private AvaragePriceBenchmark _avaragePriceBenchmark;
 
+        // TODO implement SQLite database solution.
         public List<FinancialAsset> AssetsList { get; } = new List<FinancialAsset>();
         public FinancialStorage() 
         {
+            _avaragePriceBenchmark = new AvaragePriceBenchmark();
             LoadFinancialInformation();
         }
 
-        private int DateToTimeslot(DateTime input) 
+        public static int DateToTimeslot(DateTime input) 
         {
             TimeSpan diff = input - _timeslotStart;
             int inTimeslots = (int)diff.TotalSeconds / _timeslotInterval;
             return inTimeslots * _timeslotInterval;
         }
 
-        private DateTime TimeslotToDate(int timeslot)
+        public static DateTime TimeslotToDate(int timeslot)
         {
             DateTime dateTime = _timeslotStart.AddSeconds(timeslot);
             return dateTime;
@@ -85,7 +89,7 @@ namespace SC.DevChallenge.Api.Models
             return new OkObjectResult(jsonString);
         }
 
-        public ActionResult CalculateAvarageBenchmarked(string portifolio, string dateTime)
+        public ActionResult CalculateAvarageBenchmarked(string portfolio, string dateTime)
         {
             if (!ParseDateTime(dateTime, out DateTime realDateTime))
             {
@@ -96,26 +100,12 @@ namespace SC.DevChallenge.Api.Models
             int endTimeSlot = startTimeSlot + _timeslotInterval;
 
             var query = from asset in AssetsList
-                        where asset.Portfolio.ToLower() == portifolio.ToLower() &&
+                        where asset.Portfolio.ToLower() == portfolio.ToLower() &&
                         DateToTimeslot(asset.Datetime) < endTimeSlot &&
                         DateToTimeslot(asset.Datetime) >= startTimeSlot
                         select asset;
 
-            QuantileCalculations quantiles = new QuantileCalculations(query);
-            var benchmarkedPrices = quantiles.GetBenchmarkedAssets();
-
-            if (query.Count() <= 0)
-            {
-                return new NotFoundResult();
-            }
-
-            double avarage = query.Average(asset => asset.Price);
-            DateTime date = TimeslotToDate(startTimeSlot);
-
-            AvarageGetResult result = new AvarageGetResult(date, avarage);
-            string jsonString = JsonSerializer.Serialize(result);
-
-            return new OkObjectResult(jsonString);
+            return _avaragePriceBenchmark.GetAvarageBenchmarked(query, startTimeSlot);
         }
 
         public ActionResult CalculateAvarageAggregated(string portfolio, string startDate, string endDate, string intervals)
@@ -130,52 +120,13 @@ namespace SC.DevChallenge.Api.Models
             int startTimeslot = DateToTimeslot(startDateTime);
             int endTimeslot = DateToTimeslot(endDateTime);
 
-            // Separate this logic from Financial Storage 
-
-            IntervalsSplitter intervalsSplitter = new IntervalsSplitter(startTimeslot, endTimeslot, intervalsValue);
-
-            var intervalsCollection = intervalsSplitter.CalculateIntervals();
-
-            int firstInterval = startTimeslot;
-            int lastInterval = startTimeslot;
-
             var portfoliosInDateRange = from asset in AssetsList
                                         where asset.Portfolio.ToLower() == portfolio.ToLower() &&
-                                        DateToTimeslot(asset.Datetime) < endTimeslot &&
-                                        DateToTimeslot(asset.Datetime) >= startTimeslot
+                                        FinancialStorage.DateToTimeslot(asset.Datetime) < endTimeslot &&
+                                        FinancialStorage.DateToTimeslot(asset.Datetime) >= startTimeslot
                                         select asset;
 
-            List<AvarageGetResult> groupedAssets = new List<AvarageGetResult>();
-
-            foreach (var group in intervalsCollection)
-            {
-                lastInterval = firstInterval + group * _timeslotInterval;
-
-                var intervalsGroup = from asset in portfoliosInDateRange
-                                     where DateToTimeslot(asset.Datetime) < lastInterval &&
-                                           DateToTimeslot(asset.Datetime) >= firstInterval
-                                     select asset;
-
-                QuantileCalculations quantiles = new QuantileCalculations(intervalsGroup);
-                var benchmarkedPrices = quantiles.GetBenchmarkedAssets();
-
-                if (intervalsGroup.Count() <= 0)
-                {
-                    return new NotFoundResult();
-                }
-
-                double avarage = intervalsGroup.Average(asset => asset.Price);
-                DateTime date = TimeslotToDate(firstInterval);
-
-                AvarageGetResult result = new AvarageGetResult(date, avarage);
-                groupedAssets.Add(result);
-
-                firstInterval = lastInterval;
-            }
-
-            string jsonString = JsonSerializer.Serialize(groupedAssets);
-
-            return new OkObjectResult(jsonString);
+            return _avaragePriceBenchmark.GetAvarageAggregatedBenchmarked(portfoliosInDateRange, startTimeslot, endTimeslot, intervalsValue);
         }
     }
 }

@@ -1,10 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace SC.DevChallenge.Api.Models
 {
     public interface IFinancialStorage
     {
+        /// <summary>
+        /// List of all financial assets loaded from .csv file.
+        /// </summary>
+        List<FinancialAsset> AssetsList { get; }
         /// <summary>
         /// Calculates avarage price depending dateTime interval and other parameters.
         /// </summary>
@@ -19,7 +24,31 @@ namespace SC.DevChallenge.Api.Models
         /// Otherwise returns negative <see cref="ActionResult"/>. 
         /// </returns>
         ActionResult CalculateAvarage(string portfolio, string owner, string instrument, string dateTime);
+        /// <summary>
+        /// Calculates avarage benchmarked price dateTime interval and other parameters.
+        /// </summary>
+        /// <param name="portifolio"> Declares portfolio to include in calculations.</param>
+        /// <param name="dateTime"> Declares an interval on which asset was bought.</param>
+        /// <returns> 
+        /// On Success returns <see cref="ActionResult"/> 
+        /// with JSON string which includes avarage price and 
+        /// timeslot interval start. 
+        /// Otherwise returns negative <see cref="ActionResult"/>. 
+        /// </returns>
         ActionResult CalculateAvarageBenchmarked(string portifolio, string dateTime);
-        ActionResult CalculateAvarageAggregated(string portfolion, string startDate, string endDate, string intervals);
+        /// <summary>
+        /// Calculates avarage benchmarked price (depending on portfolio) for several intervals independently.
+        /// </summary>
+        /// <param name="portfolio"></param>
+        /// <param name="startDate"></param>
+        /// <param name="endDate"></param>
+        /// <param name="intervals"></param>
+        /// <returns> 
+        /// On Success returns <see cref="ActionResult"/> 
+        /// with JSON string which includes avarage price and 
+        /// timeslot interval start. 
+        /// Otherwise returns negative <see cref="ActionResult"/>. 
+        /// </returns>
+        ActionResult CalculateAvarageAggregated(string portfolio, string startDate, string endDate, string intervals);
     }
 }
