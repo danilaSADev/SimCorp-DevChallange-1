@@ -8,14 +8,14 @@ namespace SC.DevChallenge.Api.Models
 {
     public class AvaragePriceBenchmark
     {
-        public ActionResult GetAvarageBenchmarked(IEnumerable<FinancialAsset> query, int startTimeslot)
+        private string CalculateAvarageBenchmarked(IEnumerable<FinancialAsset> query, int startTimeslot)
         {
             QuantileCalculations quantiles = new QuantileCalculations(query);
             var benchmarkedPrices = quantiles.GetBenchmarkedAssets();
 
             if (query.Count() <= 0)
             {
-                return new NotFoundResult();
+                return "not found";
             }
 
             double avarage = query.Average(asset => asset.Price);
@@ -24,7 +24,19 @@ namespace SC.DevChallenge.Api.Models
             AvarageGetResult result = new AvarageGetResult(date, avarage);
             string jsonString = JsonSerializer.Serialize(result);
 
-            return new OkObjectResult(jsonString);
+            return jsonString;
+        }
+
+        public ActionResult GetAvarageBenchmarked(IEnumerable<FinancialAsset> query, int startTimeslot)
+        {
+            var result = CalculateAvarageBenchmarked(query, startTimeslot);
+
+            if (result == "not found")
+            {
+                return new NotFoundResult();
+            }
+
+            return new OkObjectResult(result);
         }
 
         public ActionResult GetAvarageAggregatedBenchmarked(IEnumerable<FinancialAsset> query, int startTimeslot, int endTimeslot, int intervalsValue)
@@ -34,7 +46,7 @@ namespace SC.DevChallenge.Api.Models
 
             var intervalsCollection = intervalsSplitter.CalculateIntervals();
 
-            int firstInterval = startTimeslot;
+            int firstInterval = startTimeslot + FinancialStorage._timeslotInterval;
             int lastInterval = startTimeslot;
 
             List<AvarageGetResult> groupedAssets = new List<AvarageGetResult>();
