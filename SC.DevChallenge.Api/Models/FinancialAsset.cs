@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SC.DevChallenge.Api.Models
+namespace SCDevChallengeApi.Models
 {
     public class FinancialAsset
     {

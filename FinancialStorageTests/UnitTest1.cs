@@ -1,6 +1,6 @@
 using Xunit;
 using Microsoft.AspNetCore.Mvc;
-using SC.DevChallenge.Api.Models;
+using SCDevChallengeApi.Models;
 
 namespace FinancialStorageTests
 {

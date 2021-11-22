@@ -2,7 +2,7 @@
 using System.Runtime.Serialization;
 using System;
 
-namespace SC.DevChallenge.Api.Models
+namespace SCDevChallengeApi.Models
 {
     [Serializable]
     public class AvarageGetResult : ISerializable

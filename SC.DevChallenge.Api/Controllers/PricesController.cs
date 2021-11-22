@@ -1,8 +1,8 @@
 ﻿using System;
-using SC.DevChallenge.Api.Models;
+using SCDevChallengeApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SC.DevChallenge.Api.Controllers
+namespace SCDevChallengeApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

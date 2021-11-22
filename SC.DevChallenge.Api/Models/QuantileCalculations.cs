@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 
-namespace SC.DevChallenge.Api.Models
+namespace SCDevChallengeApi.Models
 {
     public class QuantileCalculations
     {

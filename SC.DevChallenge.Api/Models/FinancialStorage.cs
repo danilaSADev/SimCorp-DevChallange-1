@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Web;
-using System.Data.SqlTypes;
+using Microsoft.Data.Sqlite;
 
-namespace SC.DevChallenge.Api.Models
+namespace SCDevChallengeApi.Models
 {
     public class FinancialStorage : IFinancialStorage
     {
@@ -15,14 +15,27 @@ namespace SC.DevChallenge.Api.Models
         public static readonly int _timeslotInterval = 10000;
         private static readonly DateTime _timeslotStart = new DateTime(2018, 1, 1);
 
-        private AvaragePriceBenchmark _avaragePriceBenchmark;
+        //private SqliteConnection;
 
-        // TODO implement SQLite database solution.
+        private AvaragePriceBenchmark _avaragePriceBenchmark;
+        
         public List<FinancialAsset> AssetsList { get; } = new List<FinancialAsset>();
         public FinancialStorage() 
         {
             _avaragePriceBenchmark = new AvaragePriceBenchmark();
             LoadFinancialInformation();
+            LoadDataBase();
+        }
+
+        private void LoadDataBase()
+        {
+            using (var connection = new SqliteConnection($"DataSource={Environment.CurrentDirectory}/usersdata.db;Mode=ReadWriteCreate;"))
+            {
+                connection.Open();
+                SqliteCommand command = connection.CreateCommand();
+                command.CommandText = "CREATE TABLE FinancialStorage(_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, portfolio TEXT NOT NULL, owner TEXT NOT NULL, instrument TEXT NOT NULL)";
+                command.ExecuteNonQuery();
+            }
         }
 
         public static int DateToTimeslot(DateTime input) 

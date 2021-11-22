@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SC.DevChallenge.Api.Models
+namespace SCDevChallengeApi.Models
 {
     public class AvaragePriceBenchmark
     {

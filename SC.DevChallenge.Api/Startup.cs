@@ -4,9 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using SC.DevChallenge.Api.Models;
+using SCDevChallengeApi.DevChallenge.Api.Models;
 
-namespace SC.DevChallenge.Api
+namespace SCDevChallengeApi.DevChallenge.Api
 {
     public class Startup
     {
