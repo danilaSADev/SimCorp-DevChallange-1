@@ -2,7 +2,7 @@
 
 namespace SCDevChallengeApi.Models
 {
-    public class FinancialAsset
+    public class FinancialAsset : IFinancialAsset
     {
         public string Portfolio { get; }
         public string Owner { get; }

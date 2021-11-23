@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 
-namespace SCDevChallengeApi.Models
+namespace SCDevChallengeApi.BLL
 {
     public class IntervalsSplitter
     {
@@ -27,7 +27,7 @@ namespace SCDevChallengeApi.Models
 
             var intervalsCollection = new Queue<int>();
 
-            int timeslotsCount = (_endTimeslot - _startTimeslot) / FinancialStorage._timeslotInterval;
+            int timeslotsCount = (_endTimeslot - _startTimeslot) / DateOperations.TimeslotInterval;
 
             double avarageTimeslotsCount = timeslotsCount / _intervals;
 

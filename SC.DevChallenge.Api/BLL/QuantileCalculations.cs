@@ -2,12 +2,12 @@
 using System.Linq;
 using System.Collections.Generic;
 
-namespace SCDevChallengeApi.Models
+namespace SCDevChallengeApi.BLL
 {
     public class QuantileCalculations
     {
-        private IEnumerable<FinancialAsset> _assetsCollection;
-        public QuantileCalculations(IEnumerable<FinancialAsset> collection)
+        private IEnumerable<IFinancialAsset> _assetsCollection;
+        public QuantileCalculations(IEnumerable<IFinancialAsset> collection)
         {
             _assetsCollection = collection;
         }
@@ -21,7 +21,7 @@ namespace SCDevChallengeApi.Models
             return (int)Math.Ceiling((_assetsCollection.Count() - 1.0) / 4.0);
         }
 
-        public IEnumerable<FinancialAsset> GetBenchmarkedAssets()
+        public IEnumerable<IFinancialAsset> GetBenchmarkedAssets()
         {
             var sortedAssets = _assetsCollection.OrderBy(asset => asset.Price);
 

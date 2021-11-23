@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SC.DevChallenge.Api\SC.DevChallenge.Api.csproj" />
+    <ProjectReference Include="..\SC.DevChallenge.Api\SCDevChallengeApi.csproj" />
   </ItemGroup>
 
 </Project>

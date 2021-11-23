@@ -2,62 +2,56 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Linq;
+using SCDevChallengeApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SCDevChallengeApi.Models
+namespace SCDevChallengeApi.BLL
 {
     public class AvaragePriceBenchmark
     {
-        private string CalculateAvarageBenchmarked(IEnumerable<FinancialAsset> query, int startTimeslot)
+        private AvarageGetResult CalculateAvarageBenchmarked(IEnumerable<IFinancialAsset> query, int startTimeslot)
         {
+            DateOperations dateOperations = new DateOperations();
             QuantileCalculations quantiles = new QuantileCalculations(query);
             var benchmarkedPrices = quantiles.GetBenchmarkedAssets();
 
             if (query.Count() <= 0)
             {
-                return "not found";
+                return new EmptyAvarageGetResult();
             }
 
             double avarage = query.Average(asset => asset.Price);
-            DateTime date = FinancialStorage.TimeslotToDate(startTimeslot);
+            DateTime date = dateOperations.TimeslotToDate(startTimeslot);
 
             AvarageGetResult result = new AvarageGetResult(date, avarage);
-            string jsonString = JsonSerializer.Serialize(result);
-
-            return jsonString;
+            return result;
         }
 
-        public ActionResult GetAvarageBenchmarked(IEnumerable<FinancialAsset> query, int startTimeslot)
+        public ActionResult GetAvarageBenchmarked(IEnumerable<IFinancialAsset> query, int startTimeslot)
         {
             var result = CalculateAvarageBenchmarked(query, startTimeslot);
-
-            if (result == "not found")
-            {
-                return new NotFoundResult();
-            }
-
-            return new OkObjectResult(result);
+            return result;
         }
 
-        public ActionResult GetAvarageAggregatedBenchmarked(IEnumerable<FinancialAsset> query, int startTimeslot, int endTimeslot, int intervalsValue)
+        public ActionResult GetAvarageAggregatedBenchmarked(IEnumerable<IFinancialAsset> query, int startTimeslot, int endTimeslot, int intervalsValue)
         {
 
             IntervalsSplitter intervalsSplitter = new IntervalsSplitter(startTimeslot, endTimeslot, intervalsValue);
 
             var intervalsCollection = intervalsSplitter.CalculateIntervals();
 
-            int firstInterval = startTimeslot + FinancialStorage._timeslotInterval;
+            int firstInterval = startTimeslot + DateOperations.TimeslotInterval;
             int lastInterval = startTimeslot;
 
             List<AvarageGetResult> groupedAssets = new List<AvarageGetResult>();
 
             foreach (var group in intervalsCollection)
             {
-                lastInterval = firstInterval + group * FinancialStorage._timeslotInterval;
+                lastInterval = firstInterval + group * DateOperations.TimeslotInterval;
 
                 var intervalsGroup = from asset in query
-                                     where FinancialStorage.DateToTimeslot(asset.Datetime) < lastInterval &&
-                                           FinancialStorage.DateToTimeslot(asset.Datetime) >= firstInterval
+                                     where DateOperations.DateToTimeslot(asset.Datetime) < lastInterval &&
+                                           DateOperations.DateToTimeslot(asset.Datetime) >= firstInterval
                                      select asset;
 
                 QuantileCalculations quantiles = new QuantileCalculations(intervalsGroup);

@@ -1,6 +1,7 @@
 ﻿using System;
+using SCDevChallengeApi.Models;
 
-namespace SCDevChallengeApi.Models
+namespace SCDevChallengeApi.BLL
 {
     public class FromCSVAssetParser
     {

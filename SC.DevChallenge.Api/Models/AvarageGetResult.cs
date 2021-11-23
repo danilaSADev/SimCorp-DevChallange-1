@@ -16,7 +16,7 @@ namespace SCDevChallengeApi.Models
             Price = price;
         }
 
-        public void GetObjectData(SerializationInfo info, StreamingContext ctxt)
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext ctxt)
         {
             info.AddValue("date", Date);
             info.AddValue("price", Price);

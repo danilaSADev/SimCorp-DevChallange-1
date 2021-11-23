@@ -1,15 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc;
 
-namespace SCDevChallengeApi.Models
+namespace SCDevChallengeApi
 {
-    public interface IFinancialStorage
+    public interface IFinancialStorageOperations
     {
-        /// <summary>
-        /// List of all financial assets loaded from .csv file.
-        /// </summary>
-        List<FinancialAsset> AssetsList { get; }
         /// <summary>
         /// Calculates avarage price depending dateTime interval and other parameters.
         /// </summary>
